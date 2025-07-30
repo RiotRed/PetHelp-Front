@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
 import WelcomePage from "./components/WelcomePage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";

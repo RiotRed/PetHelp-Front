@@ -222,4 +222,4 @@ export default function MapaDensidadCanina() {
       </div>
     </div>
   );
-}
+} 
