@@ -3,6 +3,7 @@ import WelcomePage from "./components/WelcomePage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Header from "./components/Header";
 import AuthModal from "./components/AuthModal";
+import DashboardGeneral from "./components/DashboardGeneral";
 import { useState, useEffect } from "react";
 
 function AppContent() {
@@ -35,7 +36,7 @@ function AppContent() {
     <>
       <Header />
       <div style={{ paddingTop: isAuthenticated ? '80px' : '0' }}>
-        {isAuthenticated ? <Dashboard /> : <WelcomePage />}
+        {isAuthenticated ? <DashboardGeneral /> : <WelcomePage />}
       </div>
       <AuthModal 
         isOpen={showAuthModal} 
@@ -47,8 +48,11 @@ function AppContent() {
 
 export default function App() {
   return (
+        <div>
+      <DashboardGeneral />
       <AuthProvider>
         <AppContent />
       </AuthProvider>
+    </div>
   );
 }
