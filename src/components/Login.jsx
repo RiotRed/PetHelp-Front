@@ -3,6 +3,8 @@ import { useState } from "react";
 export default function Login({ onLogin, onRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isRegister, setIsRegister] = useState(false);
@@ -13,12 +15,12 @@ export default function Login({ onLogin, onRegister }) {
     setError("");
     try {
       if (isRegister) {
-        await onRegister(email, password);
+        await onRegister(email, password, nombre, direccion);
       } else {
         await onLogin(email, password);
       }
     } catch (err) {
-      setError(isRegister ? "Error al registrarse" : "Correo o contraseña incorrectos");
+      setError(err.message || (isRegister ? "Error al registrarse" : "Error al iniciar sesión"));
     } finally {
       setLoading(false);
     }
@@ -61,12 +63,57 @@ export default function Login({ onLogin, onRegister }) {
         </button>
       </div>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12, padding: 24, border: "1px solid #ddd", borderRadius: 8, background: "#fafafa" }}>
-        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo" type="email" required style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} />
-        <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña" type="password" required style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} />
-        <button type="submit" disabled={loading} style={{ padding: 10, borderRadius: 4, background: "#4caf50", color: "white", border: "none", fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}>
+        <input 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="Correo" 
+          type="email" 
+          required 
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} 
+        />
+        <input 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Contraseña" 
+          type="password" 
+          required 
+          style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} 
+        />
+        {isRegister && (
+          <>
+            <input 
+              value={nombre} 
+              onChange={(e) => setNombre(e.target.value)} 
+              placeholder="Nombre completo" 
+              type="text" 
+              required 
+              style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} 
+            />
+            <input 
+              value={direccion} 
+              onChange={(e) => setDireccion(e.target.value)} 
+              placeholder="Dirección (opcional)" 
+              type="text" 
+              style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }} 
+            />
+          </>
+        )}
+        <button 
+          type="submit" 
+          disabled={loading} 
+          style={{ 
+            padding: 10, 
+            borderRadius: 4, 
+            background: "#4caf50", 
+            color: "white", 
+            border: "none", 
+            fontWeight: 600, 
+            cursor: loading ? "not-allowed" : "pointer" 
+          }}
+        >
           {loading ? (isRegister ? "Registrando..." : "Ingresando...") : (isRegister ? "Registrarse" : "Iniciar sesión")}
         </button>
-        {error && <div style={{ color: "#d32f2f", marginTop: 8 }}>{error}</div>}
+        {error && <div style={{ color: "#d32f2f", marginTop: 8, textAlign: "center" }}>{error}</div>}
       </form>
     </div>
   );

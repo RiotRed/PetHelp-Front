@@ -9,7 +9,8 @@ const login = async (email, password) => {
     }
     return res.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Error en el login");
+    const errorMessage = error.response?.data?.message || "Error en el login";
+    throw new Error(errorMessage);
   }
 };
 
@@ -38,7 +39,8 @@ const register = async (userData) => {
     }
     return res.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Error en el registro");
+    const errorMessage = error.response?.data?.message || "Error en el registro";
+    throw new Error(errorMessage);
   }
 };
 
@@ -48,7 +50,7 @@ const validateToken = async () => {
     return res.data;
   } catch (error) {
     logout();
-    throw error;
+    throw new Error("Token inválido");
   }
 };
 

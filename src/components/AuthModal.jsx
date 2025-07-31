@@ -5,6 +5,8 @@ export default function AuthModal({ isOpen, onClose }) {
   const { login, register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isRegister, setIsRegister] = useState(false);
@@ -15,13 +17,13 @@ export default function AuthModal({ isOpen, onClose }) {
     setError("");
     try {
       if (isRegister) {
-        await register(email, password);
+        await register(email, password, nombre, direccion);
       } else {
         await login(email, password);
       }
       onClose();
     } catch (err) {
-      setError(isRegister ? "Error al registrarse" : "Correo o contraseña incorrectos");
+      setError(err.message || (isRegister ? "Error al registrarse" : "Error al iniciar sesión"));
     } finally {
       setLoading(false);
     }
@@ -186,6 +188,49 @@ export default function AuthModal({ isOpen, onClose }) {
               onBlur={(e) => e.target.style.borderColor = '#e1e5e9'}
             />
           </div>
+          {isRegister && (
+            <>
+              <div>
+                <input 
+                  value={nombre} 
+                  onChange={(e) => setNombre(e.target.value)} 
+                  placeholder="Nombre completo" 
+                  type="text" 
+                  required 
+                  style={{ 
+                    width: '100%',
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e1e5e9',
+                    fontSize: '14px',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                  onBlur={(e) => e.target.style.borderColor = '#e1e5e9'}
+                />
+              </div>
+              <div>
+                <input 
+                  value={direccion} 
+                  onChange={(e) => setDireccion(e.target.value)} 
+                  placeholder="Dirección (opcional)" 
+                  type="text" 
+                  style={{ 
+                    width: '100%',
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e1e5e9',
+                    fontSize: '14px',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                  onBlur={(e) => e.target.style.borderColor = '#e1e5e9'}
+                />
+              </div>
+            </>
+          )}
           <button 
             type="submit" 
             disabled={loading} 
