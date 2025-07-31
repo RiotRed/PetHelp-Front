@@ -4,7 +4,11 @@ import { getEstadisticasIncidentes } from "../services/IncidenteService";
 export default function EstadisticasIncidentes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [incidentesPorRaza, setIncidentesPorRaza] = useState([]);
+  const [estadisticas, setEstadisticas] = useState({
+    totalIncidentes: 0,
+    porTipo: {},
+    porEstado: {}
+  });
 
   useEffect(() => {
     const loadEstadisticas = async () => {
@@ -13,7 +17,11 @@ export default function EstadisticasIncidentes() {
         setError("");
         
         const response = await getEstadisticasIncidentes();
-        setIncidentesPorRaza(response.data || []);
+        setEstadisticas(response.data || {
+          totalIncidentes: 0,
+          porTipo: {},
+          porEstado: {}
+        });
       } catch (err) {
         console.error("Error loading incident statistics:", err);
         setError("Error al cargar las estadísticas de incidentes");
@@ -33,10 +41,6 @@ export default function EstadisticasIncidentes() {
       default: return "#e1e5e9";
     }
   };
-
-  const razasConAltoRiesgo = incidentesPorRaza.filter(raza => raza.nivel === "Alto");
-  const razasConMedioRiesgo = incidentesPorRaza.filter(raza => raza.nivel === "Medio");
-  const razasConBajoRiesgo = incidentesPorRaza.filter(raza => raza.nivel === "Bajo");
 
   if (loading) return (
     <div style={{ 
@@ -76,7 +80,7 @@ export default function EstadisticasIncidentes() {
         fontSize: '18px',
         fontWeight: '600'
       }}>
-        ⚠️ Estadísticas de Incidentes por Raza
+        ⚠️ Estadísticas de Incidentes
       </h3>
 
       {/* Resumen general */}
@@ -94,9 +98,9 @@ export default function EstadisticasIncidentes() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#856404' }}>
-            {razasConAltoRiesgo.length}
+            {estadisticas.totalIncidentes}
           </div>
-          <div style={{ fontSize: '14px', color: '#856404' }}>Razas de Alto Riesgo</div>
+          <div style={{ fontSize: '14px', color: '#856404' }}>Total de Incidentes</div>
         </div>
         <div style={{
           padding: '16px',
@@ -106,9 +110,9 @@ export default function EstadisticasIncidentes() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f57c00' }}>
-            {razasConMedioRiesgo.length}
+            {Object.keys(estadisticas.porTipo).length}
           </div>
-          <div style={{ fontSize: '14px', color: '#f57c00' }}>Razas de Medio Riesgo</div>
+          <div style={{ fontSize: '14px', color: '#f57c00' }}>Tipos de Incidentes</div>
         </div>
         <div style={{
           padding: '16px',
@@ -118,60 +122,98 @@ export default function EstadisticasIncidentes() {
           textAlign: 'center'
         }}>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#2e7d32' }}>
-            {razasConBajoRiesgo.length}
+            {Object.keys(estadisticas.porEstado).length}
           </div>
-          <div style={{ fontSize: '14px', color: '#2e7d32' }}>Razas de Bajo Riesgo</div>
+          <div style={{ fontSize: '14px', color: '#2e7d32' }}>Estados de Incidentes</div>
         </div>
       </div>
 
-      {/* Tabla de estadísticas */}
-      {incidentesPorRaza.length > 0 ? (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '14px'
-          }}>
-            <thead>
-              <tr style={{
-                background: '#f5f5f5',
-                borderBottom: '2px solid #e0e0e0'
-              }}>
-                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Raza</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Total Perros</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Con Incidentes</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Porcentaje</th>
-                <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Nivel de Riesgo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {incidentesPorRaza.map((raza, index) => (
-                <tr key={index} style={{
-                  borderBottom: '1px solid #e0e0e0',
-                  '&:hover': { background: '#f9f9f9' }
+      {/* Estadísticas por tipo */}
+      {Object.keys(estadisticas.porTipo).length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <h4 style={{ margin: '0 0 16px 0', color: '#333', fontSize: '16px' }}>
+            📊 Incidentes por Tipo
+          </h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '14px'
+            }}>
+              <thead>
+                <tr style={{
+                  background: '#f5f5f5',
+                  borderBottom: '2px solid #e0e0e0'
                 }}>
-                  <td style={{ padding: '12px', fontWeight: '500' }}>{raza.raza}</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>{raza.totalPerros}</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>{raza.conIncidentes}</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>{raza.porcentaje}%</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      color: 'white',
-                      background: getNivelColor(raza.nivel)
-                    }}>
-                      {raza.nivel}
-                    </span>
-                  </td>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Tipo de Incidente</th>
+                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Cantidad</th>
+                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Porcentaje</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {Object.entries(estadisticas.porTipo).map(([tipo, cantidad], index) => (
+                  <tr key={index} style={{
+                    borderBottom: '1px solid #e0e0e0'
+                  }}>
+                    <td style={{ padding: '12px', fontWeight: '500' }}>{tipo}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{cantidad}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      {estadisticas.totalIncidentes > 0 
+                        ? Math.round((cantidad / estadisticas.totalIncidentes) * 100) 
+                        : 0}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      ) : (
+      )}
+
+      {/* Estadísticas por estado */}
+      {Object.keys(estadisticas.porEstado).length > 0 && (
+        <div style={{ marginBottom: '24px' }}>
+          <h4 style={{ margin: '0 0 16px 0', color: '#333', fontSize: '16px' }}>
+            📈 Incidentes por Estado
+          </h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '14px'
+            }}>
+              <thead>
+                <tr style={{
+                  background: '#f5f5f5',
+                  borderBottom: '2px solid #e0e0e0'
+                }}>
+                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Estado</th>
+                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Cantidad</th>
+                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Porcentaje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(estadisticas.porEstado).map(([estado, cantidad], index) => (
+                  <tr key={index} style={{
+                    borderBottom: '1px solid #e0e0e0'
+                  }}>
+                    <td style={{ padding: '12px', fontWeight: '500' }}>{estado}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{cantidad}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      {estadisticas.totalIncidentes > 0 
+                        ? Math.round((cantidad / estadisticas.totalIncidentes) * 100) 
+                        : 0}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Mensaje cuando no hay datos */}
+      {estadisticas.totalIncidentes === 0 && (
         <div style={{
           textAlign: 'center',
           padding: '40px',
@@ -179,7 +221,7 @@ export default function EstadisticasIncidentes() {
           background: '#f5f5f5',
           borderRadius: '8px'
         }}>
-          No hay datos de incidentes disponibles
+          No hay incidentes registrados en el sistema
         </div>
       )}
 
@@ -192,26 +234,16 @@ export default function EstadisticasIncidentes() {
         border: '1px solid #bbdefb'
       }}>
         <h4 style={{ margin: '0 0 8px 0', color: '#1976d2', fontSize: '14px' }}>
-          📊 Criterios de Clasificación
+          📊 Información de Estadísticas
         </h4>
-        <ul style={{ 
+        <p style={{ 
           margin: 0, 
-          paddingLeft: '20px', 
           fontSize: '12px', 
           color: '#1976d2',
           lineHeight: '1.4'
         }}>
-          <li><strong>Alto Riesgo:</strong> Más del 40% de perros de la raza han tenido incidentes</li>
-          <li><strong>Medio Riesgo:</strong> Entre 20% y 40% de perros de la raza han tenido incidentes</li>
-          <li><strong>Bajo Riesgo:</strong> Menos del 20% de perros de la raza han tenido incidentes</li>
-        </ul>
-        <p style={{ 
-          margin: '8px 0 0 0', 
-          fontSize: '11px', 
-          color: '#1976d2',
-          opacity: 0.8
-        }}>
-          <strong>Nota:</strong> Estas estadísticas se basan en reportes registrados en el sistema.
+          <strong>Nota:</strong> Estas estadísticas muestran el total de incidentes registrados en el sistema, 
+          clasificados por tipo y estado. Los datos se actualizan en tiempo real según los reportes ingresados.
         </p>
       </div>
     </div>
