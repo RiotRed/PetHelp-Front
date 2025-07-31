@@ -15,6 +15,10 @@ export default function DashboardGeneral() {
   const [porEdad, setPorEdad] = useState({});
   const [porTamaño, setPorTamaño] = useState({});
   const [porComportamiento, setPorComportamiento] = useState({});
+  const [porGenero, setPorGenero] = useState({});
+  const [porColor, setPorColor] = useState({});
+  const [porVacunacion, setPorVacunacion] = useState({});
+  const [porEsterilizacion, setPorEsterilizacion] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -29,16 +33,28 @@ export default function DashboardGeneral() {
         const perros = perrosRes.data || [];
         setTotal(perros.length);
 
-        // Get statistics
+        // Get statistics from backend
         try {
           const estadisticasRes = await getEstadisticasGenerales();
           if (estadisticasRes.data) {
-            // Usar los datos de estadísticas si están disponibles
+            // Usar los datos de estadísticas del backend
             if (estadisticasRes.data.porTamaño) {
               setPorTamaño(estadisticasRes.data.porTamaño);
             }
             if (estadisticasRes.data.porComportamiento) {
               setPorComportamiento(estadisticasRes.data.porComportamiento);
+            }
+            if (estadisticasRes.data.porGenero) {
+              setPorGenero(estadisticasRes.data.porGenero);
+            }
+            if (estadisticasRes.data.porColor) {
+              setPorColor(estadisticasRes.data.porColor);
+            }
+            if (estadisticasRes.data.porVacunacion) {
+              setPorVacunacion(estadisticasRes.data.porVacunacion);
+            }
+            if (estadisticasRes.data.porEsterilizacion) {
+              setPorEsterilizacion(estadisticasRes.data.porEsterilizacion);
             }
           }
         } catch (error) {
@@ -126,6 +142,7 @@ export default function DashboardGeneral() {
           <h3>Total de Perros</h3>
           <div style={{ fontSize: "32px", fontWeight: "bold" }}>{total}</div>
         </div>
+        
         <div style={{ minWidth: "300px" }}>
           <h3>Perros por Raza</h3>
           {Object.keys(porRaza).length > 0 ? (
@@ -142,6 +159,7 @@ export default function DashboardGeneral() {
             <p>No hay datos disponibles</p>
           )}
         </div>
+        
         <div style={{ minWidth: "300px" }}>
           <h3>Categorías de Edad</h3>
           <Bar
@@ -156,6 +174,7 @@ export default function DashboardGeneral() {
             options={{ plugins: { legend: { display: false } } }}
           />
         </div>
+        
         <div style={{ minWidth: "300px" }}>
           <h3>Perros por Tamaño</h3>
           {Object.keys(porTamaño).length > 0 ? (
@@ -174,6 +193,7 @@ export default function DashboardGeneral() {
             <p>No hay datos disponibles</p>
           )}
         </div>
+        
         <div style={{ minWidth: "300px" }}>
           <h3>Perros por Comportamiento</h3>
           {Object.keys(porComportamiento).length > 0 ? (
@@ -187,6 +207,57 @@ export default function DashboardGeneral() {
                 }]
               }}
               options={{ plugins: { legend: { display: false } } }}
+            />
+          ) : (
+            <p>No hay datos disponibles</p>
+          )}
+        </div>
+        
+        <div style={{ minWidth: "300px" }}>
+          <h3>Perros por Género</h3>
+          {Object.keys(porGenero).length > 0 ? (
+            <Pie
+              data={{
+                labels: Object.keys(porGenero),
+                datasets: [{
+                  data: Object.values(porGenero),
+                  backgroundColor: ["#ff6b6b", "#667eea"]
+                }]
+              }}
+            />
+          ) : (
+            <p>No hay datos disponibles</p>
+          )}
+        </div>
+        
+        <div style={{ minWidth: "300px" }}>
+          <h3>Estado de Vacunación</h3>
+          {Object.keys(porVacunacion).length > 0 ? (
+            <Pie
+              data={{
+                labels: Object.keys(porVacunacion),
+                datasets: [{
+                  data: Object.values(porVacunacion),
+                  backgroundColor: ["#51cf66", "#ff6b6b"]
+                }]
+              }}
+            />
+          ) : (
+            <p>No hay datos disponibles</p>
+          )}
+        </div>
+        
+        <div style={{ minWidth: "300px" }}>
+          <h3>Estado de Esterilización</h3>
+          {Object.keys(porEsterilizacion).length > 0 ? (
+            <Pie
+              data={{
+                labels: Object.keys(porEsterilizacion),
+                datasets: [{
+                  data: Object.values(porEsterilizacion),
+                  backgroundColor: ["#51cf66", "#ff6b6b"]
+                }]
+              }}
             />
           ) : (
             <p>No hay datos disponibles</p>
