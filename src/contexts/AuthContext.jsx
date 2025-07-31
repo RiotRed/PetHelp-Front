@@ -17,38 +17,55 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = AuthService.getToken();
-    if (token) {
-      // Try to get user info from token or localStorage
-      const userInfo = AuthService.getUserInfo();
-      if (userInfo) {
-        setUser(userInfo);
-        setIsAuthenticated(true);
+    const initializeAuth = async () => {
+      const token = AuthService.getToken();
+      if (token) {
+        try {
+          // Validate token with backend
+          await AuthService.validateToken();
+          const userInfo = AuthService.getUserInfo();
+          if (userInfo) {
+            setUser(userInfo);
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          // Token is invalid, clear storage
+          AuthService.logout();
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await AuthService.login(email, password);
-      const userInfo = { email, name: email.split('@')[0] }; // Simple name extraction
+      const userInfo = response.user || { email, name: email.split('@')[0] };
       setUser(userInfo);
       setIsAuthenticated(true);
-      AuthService.setUserInfo(userInfo);
       return response;
     } catch (error) {
       throw error;
     }
   };
 
-  const register = async (email, password) => {
+  const register = async (email, password, nombre, direccion) => {
     try {
-      const response = await AuthService.register(email, password);
-      const userInfo = { email, name: email.split('@')[0] }; // Simple name extraction
+      const userData = {
+        email,
+        password,
+        nombre: nombre || '',
+        direccion: direccion || ''
+      };
+      const response = await AuthService.register(userData);
+      const userInfo = response.user || { 
+        email: userData.email, 
+        name: userData.nombre || userData.email.split('@')[0] 
+      };
       setUser(userInfo);
       setIsAuthenticated(true);
-      AuthService.setUserInfo(userInfo);
       return response;
     } catch (error) {
       throw error;

@@ -1,11 +1,17 @@
-import axios from "axios";
-
-const API = "http://localhost:8080/api/auth"; // ajusta según backend
+import api from './api';
 
 const login = async (email, password) => {
-  const res = await axios.post(`${API}/login`, { email, password });
-  localStorage.setItem("token", res.data.token);
-  return res.data;
+  try {
+    const res = await api.post("/auth/login", { email, password });
+    if (res.data.token) {
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+    }
+    return res.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Error en el login";
+    throw new Error(errorMessage);
+  }
 };
 
 const logout = () => {
@@ -24,10 +30,36 @@ const setUserInfo = (userInfo) => {
   localStorage.setItem("userInfo", JSON.stringify(userInfo));
 };
 
-const register = async (email, password) => {
-  const res = await axios.post(`${API}/register`, { email, password });
-  localStorage.setItem("token", res.data.token);
-  return res.data;
+const register = async (userData) => {
+  try {
+    const res = await api.post("/auth/register", userData);
+    if (res.data.token) {
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+    }
+    return res.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || "Error en el registro";
+    throw new Error(errorMessage);
+  }
 };
 
-export default { login, logout, getToken, getUserInfo, setUserInfo, register };
+const validateToken = async () => {
+  try {
+    const res = await api.get("/auth/validate");
+    return res.data;
+  } catch (error) {
+    logout();
+    throw new Error("Token inválido");
+  }
+};
+
+export default { 
+  login, 
+  logout, 
+  getToken, 
+  getUserInfo, 
+  setUserInfo, 
+  register,
+  validateToken
+};
