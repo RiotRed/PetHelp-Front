@@ -1,58 +1,21 @@
 import { Routes, Route } from "react-router-dom";
 import WelcomePage from "./components/WelcomePage";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import Header from "./components/Header";
-import AuthModal from "./components/AuthModal";
 import DashboardGeneral from "./components/DashboardGeneral";
-import { useState, useEffect } from "react";
+import Header from "./components/Header";
+import { AuthProvider } from "./contexts/AuthContext";
 
-function AppContent() {
-  const { isAuthenticated, loading } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  // Show auth modal on every page visit if not authenticated
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      setShowAuthModal(true);
-    }
-  }, [isAuthenticated, loading]);
-
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px',
-        color: '#666'
-      }}>
-        Cargando...
-      </div>
-    );
-  }
-
+function App() {
   return (
-    <>
-      <Header />
-      <div style={{ paddingTop: isAuthenticated ? '80px' : '0' }}>
-        {isAuthenticated ? <DashboardGeneral /> : <WelcomePage />}
+    <AuthProvider>
+      <div>
+        <Header />
+        <Routes>
+          <Route path="/" element={<WelcomePage />} />
+          <Route path="/dashboard" element={<DashboardGeneral />} />
+        </Routes>
       </div>
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-      />
-    </>
+    </AuthProvider>
   );
 }
 
-export default function App() {
-  return (
-        <div>
-      <DashboardGeneral />
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </div>
-  );
-}
+export default App;

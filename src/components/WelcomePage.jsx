@@ -1,4 +1,11 @@
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import AuthModal from "./AuthModal";
+
 export default function WelcomePage() {
+  const navigate = useNavigate();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -39,6 +46,54 @@ export default function WelcomePage() {
         }}>
           Gestiona el registro de perros y sus dueños de manera eficiente y organizada
         </p>
+
+        {/* Nuevos botones de acción */}
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          justifyContent: 'center',
+          marginBottom: '40px'
+        }}>
+          <button
+            onClick={() => setShowAuthModal(true)}
+            style={{
+              padding: '12px 24px',
+              fontSize: '1.1rem',
+              backgroundColor: 'white',
+              color: '#667eea',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'transform 0.2s ease',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            Iniciar Sesión / Registrarse
+          </button>
+
+          <button
+            onClick={() => navigate('/dashboard')}
+            style={{
+              padding: '12px 24px',
+              fontSize: '1.1rem',
+              backgroundColor: 'transparent',
+              color: 'white',
+              border: '2px solid white',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'transform 0.2s ease',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            Ver Dashboard
+          </button>
+        </div>
         
         <div style={{
           display: 'grid',
@@ -46,6 +101,7 @@ export default function WelcomePage() {
           gap: '24px',
           marginTop: '40px'
         }}>
+          {/* ... Manteniendo todas las cards existentes ... */}
           <div style={{
             background: 'rgba(255,255,255,0.1)',
             padding: '24px',
@@ -172,31 +228,15 @@ export default function WelcomePage() {
             </div>
           </div>
         </div>
-        
-        <div style={{
-          marginTop: '32px',
-          padding: '20px',
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '12px',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.2)'
-        }}>
-          <p style={{
-            margin: '0 0 16px 0',
-            fontSize: '16px',
-            fontWeight: '500'
-          }}>
-            Inicia sesión o regístrate para comenzar
-          </p>
-          <p style={{
-            margin: 0,
-            fontSize: '14px',
-            opacity: 0.8
-          }}>
-            El modal de autenticación aparecerá automáticamente
-          </p>
-        </div>
       </div>
+
+      {/* Modal de autenticación */}
+      {showAuthModal && (
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      )}
     </div>
   );
 }
