@@ -1,49 +1,42 @@
 import { useEffect, useState } from "react";
-import { getPerros, getPerrosPorRaza } from "../services/PerroService";
-import { Pie, Bar } from "react-chartjs-2";
-import dayjs from "dayjs";
-
-function categorizarEdad(fechaNacimiento) {
-  const edad = dayjs().diff(dayjs(fechaNacimiento), "year");
-  if (edad < 2) return "Cachorro";
-  if (edad < 7) return "Adulto";
-  return "Senior";
-}
+import { getPerros } from "../services/PerroService";
+import { getRazas } from "../services/RazaService";
+import { Pie } from "react-chartjs-2";
 
 export default function DashboardGeneral() {
   const [total, setTotal] = useState(0);
   const [porRaza, setPorRaza] = useState({});
-  const [porEdad, setPorEdad] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getPerros(), getPerrosPorRaza()])
-      .then(([perrosRes, razaRes]) => {
-        const perros = perrosRes.data;
+    // Obtener perros y razas
+    Promise.all([getPerros(), getRazas()])
+      .then(([perrosRes, razasRes]) => {
+        // perrosRes puede ser {data:[]} o []
+        const perros = perrosRes.data || perrosRes || [];
         setTotal(perros.length);
 
-        // Perros por raza
-        let razas = {};
-        if (razaRes.data && Array.isArray(razaRes.data)) {
-          razaRes.data.forEach(item => {
-            razas[item.raza] = item.cantidad;
-          });
-        } else {
-          // Si no existe /perros/por-raza, agrupa manualmente
-          perros.forEach(p => {
-            razas[p.raza] = (razas[p.raza] || 0) + 1;
-          });
-        }
-        setPorRaza(razas);
-
-        // Perros por edad
-        let edades = { Cachorro: 0, Adulto: 0, Senior: 0 };
+        // Agrupar perros por razaId
+        const conteoPorRazaId = {};
         perros.forEach(p => {
-          const cat = categorizarEdad(p.fechaNacimiento);
-          edades[cat] = (edades[cat] || 0) + 1;
+          conteoPorRazaId[p.razaid] = (conteoPorRazaId[p.razaid] || 0) + 1;
         });
-        setPorEdad(edades);
 
+        // Mapear razaId a nombre de raza
+        const razas = razasRes.data || razasRes || [];
+        const idToNombre = {};
+        razas.forEach(r => {
+          idToNombre[r.id] = r.nombre;
+        });
+
+        // Construir objeto {nombreRaza: cantidad}
+        const agrupado = {};
+        Object.entries(conteoPorRazaId).forEach(([razaid, cantidad]) => {
+          const nombre = idToNombre[razaid] || `Raza ${razaid}`;
+          agrupado[nombre] = cantidad;
+        });
+
+        setPorRaza(agrupado);
         setLoading(false);
       });
   }, []);
@@ -65,23 +58,11 @@ export default function DashboardGeneral() {
               labels: Object.keys(porRaza),
               datasets: [{
                 data: Object.values(porRaza),
-                backgroundColor: ["#51cf66", "#ffa726", "#ff6b6b", "#667eea", "#ffd600", "#00bcd4"]
+                backgroundColor: [
+                  "#51cf66", "#ffa726", "#ff6b6b", "#667eea", "#ffd600", "#00bcd4", "#b388ff", "#ffb300"
+                ]
               }]
             }}
-          />
-        </div>
-        <div style={{ minWidth: "300px" }}>
-          <h3>Categorías de Edad</h3>
-          <Bar
-            data={{
-              labels: Object.keys(porEdad),
-              datasets: [{
-                label: "Cantidad",
-                data: Object.values(porEdad),
-                backgroundColor: "#667eea"
-              }]
-            }}
-            options={{ plugins: { legend: { display: false } } }}
           />
         </div>
       </div>

@@ -1,66 +1,61 @@
-import api from './api';
+const API = "http://localhost:8080/api/perro";
 
 // Obtener todos los perros
 export const getPerros = () => {
-  return api.get('/perros');
+  return fetch(`${API}/all`).then(res => res.json());
 };
 
 // Obtener un perro por ID
 export const getPerro = (id) => {
-  return api.get(`/perros/${id}`);
+  return fetch(`${API}/${id}`).then(res => res.json());
 };
 
 // Crear un nuevo perro
 export const addPerro = (perro) => {
-  return api.post('/perros', perro);
+  return fetch(`${API}/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(perro)
+  }).then(res => res.json());
 };
 
 // Actualizar un perro
 export const updatePerro = (id, perro) => {
-  return api.put(`/perros/${id}`, perro);
+  return fetch(`${API}/update/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(perro)
+  }).then(res => res.json());
 };
 
 // Eliminar un perro
 export const deletePerro = (id) => {
-  return api.delete(`/perros/${id}`);
+  return fetch(`${API}/delete/${id}`, {
+    method: 'DELETE'
+  }).then(res => res.json());
 };
 
 // Buscar perros por dueño
 export const buscarPerrosPorDueno = (nombreDueno) => {
-  return api.get(`/perros/buscar?dueno=${nombreDueno}`);
-};
-
-// Obtener estadísticas de incidentes por raza
-export const getEstadisticasIncidentes = () => {
-  return api.get('/perros/estadisticas/incidentes');
-};
-
-// Obtener mapa de densidad canina
-export const getMapaDensidad = () => {
-  return api.get('/perros/mapa-densidad');
+  return fetch(`${API}/buscar?dueno=${encodeURIComponent(nombreDueno)}`).then(res => res.json());
 };
 
 // Obtener perros por ubicación
 export const getPerrosPorUbicacion = (ubicacion) => {
-  return api.get(`/perros/ubicacion/${ubicacion}`);
+  return fetch(`${API}/ubicacion/${encodeURIComponent(ubicacion)}`).then(res => res.json());
 };
 
 // Obtener perros por raza
 export const getPerrosPorRaza = (raza) => {
-  return api.get(`/perros/raza/${raza}`);
+  return fetch(`${API}/raza/${encodeURIComponent(raza)}`).then(res => res.json());
 };
 
 // Obtener perros por tamaño
 export const getPerrosPorTamaño = (tamaño) => {
-  return api.get(`/perros/tamaño/${tamaño}`);
+  return fetch(`${API}/tamaño/${encodeURIComponent(tamaño)}`).then(res => res.json());
 };
 
 // Obtener perros por comportamiento
 export const getPerrosPorComportamiento = (comportamiento) => {
-  return api.get(`/perros/comportamiento/${comportamiento}`);
+  return fetch(`${API}/comportamiento/${encodeURIComponent(comportamiento)}`).then(res => res.json());
 };
-
-// Obtener estadísticas generales
-export const getEstadisticasGenerales = () => {
-  return api.get('/perros/estadisticas/generales');
-}; 
